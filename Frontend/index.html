@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Matrix Pipeline</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="card">
+        <h2>ML Feature Pipeline</h2>
+        <p>Upload a raw CSV to generate an encoded ML Matrix and check quality.</p>
+        
+        <input type="file" id="csvFile" accept=".csv">
+        <button type="button" onclick="uploadDataset(event)">Process CSV</button>
+
+        <div id="alertBox" class="alert hidden"></div>
+        <div id="statusMessage" class="status"></div>
+
+        <div id="results" class="results hidden">
+            <h3>Processing Complete</h3>
+            <p id="rowCount"></p>
+            <p id="featureCount"></p>
+            <p id="qualityScore" class="score-text"></p>
+
+            <div class="download-links">
+                <a id="downloadML" href="#" download>Download ML Matrix CSV</a>
+            </div>
+
+            <div class="preview-section">
+                <h4>ML Matrix Preview (First 5 Rows)</h4>
+                <div class="table-container" id="mlTable"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
