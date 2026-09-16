@@ -9,7 +9,7 @@ import shutil
 import os
 from transformer import transform_to_ml_matrix
 
-app = FastAPI()
+app = FastAPI(title="ML Matrix Pipeline")
 
 app.add_middleware(
     CORSMiddleware,
