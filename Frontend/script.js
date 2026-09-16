@@ -1,87 +1,53 @@
-async function uploadDataset(event) {
-    if (event) event.preventDefault();
+document.getElementById('upload-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-    const fileInput = document.getElementById('csvFile');
-    const statusMessage = document.getElementById('statusMessage');
-    const alertBox = document.getElementById('alertBox');
-    const resultsDiv = document.getElementById('results');
+    const fileInput = document.getElementById('csv-file');
+    const resultDiv = document.getElementById('result');
 
-    alertBox.classList.add('hidden');
-    alertBox.innerText = "";
-    statusMessage.innerText = "";
-    resultsDiv.classList.add('hidden');
-
-    if (!fileInput.files[0]) {
-        showAlert("Select a CSV file first.");
+    if (!fileInput.files.length) {
+        resultDiv.innerHTML = '<p style="color: #ef4444;">Please select a CSV file.</p>';
         return;
     }
 
     const formData = new FormData();
     formData.append('file', fileInput.files[0]);
 
-    statusMessage.innerText = "Processing dataset and evaluating matrix...";
+    resultDiv.innerHTML = '<p style="color: #94a3b8;">Processing file...</p>';
 
     try {
-        const response = await fetch('/process-dataset', {
+        const response = await fetch('http://127.0.0.1:8000/process-dataset', {
             method: 'POST',
             body: formData
         });
 
-        const data = await response.json();
-
         if (!response.ok) {
-            throw new Error(data.detail || "Upload failed.");
+            throw new Error(`Server error: ${response.status}`);
         }
 
-        statusMessage.innerText = "";
-        resultsDiv.classList.remove('hidden');
-
-        document.getElementById('rowCount').innerText = `Total Rows: ${data.rows}`;
-        document.getElementById('featureCount').innerText = `Encoded Features: ${data.features}`;
-        document.getElementById('qualityScore').innerText = `Matrix Quality Score: ${data.quality_score}`;
+        const data = await response.json();
         
-        document.getElementById('downloadML').href = data.download_url;
+        // Build absolute URL for the backend file download
+        const downloadUrl = `http://127.0.0.1:8000${data.download_url}`;
 
-        renderTable(data.preview, 'mlTable');
+        // Render success message, download button, and JSON preview
+        resultDiv.innerHTML = `
+            <p style="color: #22c55e; font-weight: 600; margin-bottom: 12px;">Success! Pipeline finished.</p>
+            
+            <a href="${downloadUrl}" download style="
+                display: inline-block;
+                background: #10b981;
+                color: #ffffff;
+                padding: 10px 16px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 500;
+                margin-bottom: 16px;">
+                📥 Download ML Matrix CSV
+            </a>
 
+            <pre style="background: #0f172a; padding: 12px; border-radius: 6px; overflow-x: auto; color: #cbd5e1; font-size: 0.85rem;">${JSON.stringify(data, null, 2)}</pre>
+        `;
     } catch (error) {
-        statusMessage.innerText = "";
-        showAlert(error.message);
+        resultDiv.innerHTML = `<p style="color: #ef4444;">Error: ${error.message}</p>`;
     }
-}
-
-function showAlert(msg) {
-    const alertBox = document.getElementById('alertBox');
-    alertBox.innerText = msg;
-    alertBox.classList.remove('hidden');
-}
-
-function renderTable(data, containerId) {
-    const container = document.getElementById(containerId);
-    container.innerHTML = "";
-
-    if (!data || data.length === 0) {
-        container.innerHTML = "<p style='padding: 10px;'>No preview available.</p>";
-        return;
-    }
-
-    const table = document.createElement('table');
-    const headers = Object.keys(data[0]);
-
-    let thead = "<thead><tr>";
-    headers.forEach(h => { thead += `<th>${h}</th>`; });
-    thead += "</tr></thead>";
-
-    let tbody = "<tbody>";
-    data.forEach(row => {
-        tbody += "<tr>";
-        headers.forEach(h => {
-            tbody += `<td>${row[h] !== null ? row[h] : ''}</td>`;
-        });
-        tbody += "</tr>";
-    });
-    tbody += "</tbody>";
-
-    table.innerHTML = thead + tbody;
-    container.appendChild(table);
-}
+});
