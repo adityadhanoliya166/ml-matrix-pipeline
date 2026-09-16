@@ -17,7 +17,7 @@ A Python and FastAPI data engineering pipeline that converts raw, messy CSV data
 ## Project Structure
 
 ```text
-CSVDataAndMLPipeline/
+ML Matrix Pipeline/
 │
 ├── main.py             # FastAPI server and quality evaluation logic
 ├── transformer.py      # Core data processing & feature matrix engine
